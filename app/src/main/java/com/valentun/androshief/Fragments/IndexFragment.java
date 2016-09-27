@@ -29,11 +29,13 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
     private RecipeAdapter adapter = new RecipeAdapter(recipies);
     private OnFabSelectedListener listener;
 
-    private FloatingActionButton fab;
+    private FloatingActionButton refreshFab, newFab;
     private CoordinatorLayout layout;
 
     public interface OnFabSelectedListener {
-        void FabSelected();
+        void IndexFabSelected();
+
+        void NewFabSelected();
     }
 
 
@@ -48,8 +50,11 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
 
         layout = (CoordinatorLayout) view.findViewById(R.id.index_container);
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(this);
+        refreshFab = (FloatingActionButton) view.findViewById(R.id.fab);
+        refreshFab.setOnClickListener(this);
+
+        newFab = (FloatingActionButton) view.findViewById(R.id.new_fab);
+        newFab.setOnClickListener(this);
 
         listener = (OnFabSelectedListener) getActivity();
 
@@ -64,13 +69,23 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
         adapter.notifyDataSetChanged();
     }
 
+    public void addItemToData (RecipeDTO item) {
+        recipies.add(item);
+        adapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onClick(View view) {
         if (!Helper.isOnline(this.getActivity())) {
             Snackbar.make(layout, getResources().getString(R.string.offline_text),
                     Snackbar.LENGTH_LONG).show();
         } else {
-            listener.FabSelected();
+            switch (view.getId()) {
+                case R.id.fab:
+                    listener.IndexFabSelected();
+                case R.id.new_fab:
+                    listener.NewFabSelected();
+            }
         }
     }
 }

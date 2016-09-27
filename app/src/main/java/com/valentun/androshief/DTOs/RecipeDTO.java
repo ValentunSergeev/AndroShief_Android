@@ -16,6 +16,11 @@ public class RecipeDTO {
         this.name = name;
     }
 
+    public RecipeDTO(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     public String getId() {
         return id;
     }

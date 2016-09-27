@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">AndroShief</string>
     <string name="offline_text" translatable="false">You haven\'t network connection. Please connect to WIFI/3g/4g</string>
+
 </resources>

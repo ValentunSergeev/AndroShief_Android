@@ -6,7 +6,7 @@ public class Constants {
         private static final String HOST = "https://androshief.herokuapp.com";
 
         public static final String INDEX = HOST + "/recipies.json";
-        public static final String SHOW = HOST + "/recipies/";
+        public static final String CREATE = HOST + "/recipies.json";
 
     }
 }

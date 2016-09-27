@@ -1,0 +1,59 @@
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/new_recipe_container"
+    tools:context="com.valentun.androshief.Fragments.NewRecipeFragment"
+    android:background="#F5F5F5">
+
+
+    <android.support.v7.widget.AppCompatEditText
+        android:layout_width="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/create_recipe_name"
+        app:layout_constraintLeft_toLeftOf="@+id/textView"
+        app:layout_constraintRight_toRightOf="@+id/textView"
+        android:layout_marginTop="48dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_height="56dp"
+        android:hint="Name" />
+
+    <android.support.v7.widget.AppCompatEditText
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/create_recipe_description"
+        app:layout_constraintLeft_toLeftOf="@+id/create_recipe_name"
+        app:layout_constraintRight_toRightOf="@+id/create_recipe_name"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/create_recipe_name"
+        app:layout_constraintHorizontal_bias="1.0"
+        android:hint="Description" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:text="Create a new Recipe"
+        android:layout_width="215dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="40dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:text="Create"
+        android:layout_width="219dp"
+        android:id="@+id/create_submit"
+        app:layout_constraintRight_toRightOf="@+id/create_recipe_description"
+        app:layout_constraintLeft_toLeftOf="@+id/create_recipe_description"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/create_recipe_description"
+        android:layout_height="52dp" />
+</android.support.constraint.ConstraintLayout>
