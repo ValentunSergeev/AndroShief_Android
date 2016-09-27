@@ -34,7 +34,6 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
 
     public interface OnFabSelectedListener {
         void IndexFabSelected();
-
         void NewFabSelected();
     }
 
@@ -83,8 +82,10 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
             switch (view.getId()) {
                 case R.id.fab:
                     listener.IndexFabSelected();
+                    break;
                 case R.id.new_fab:
                     listener.NewFabSelected();
+                    break;
             }
         }
     }
