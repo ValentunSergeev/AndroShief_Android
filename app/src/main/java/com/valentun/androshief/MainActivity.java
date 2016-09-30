@@ -3,8 +3,8 @@ package com.valentun.androshief;
 import android.app.FragmentTransaction;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import com.valentun.androshief.DTOs.RecipeDTO;
@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnF
     private IndexFragment indexFragment;
     private NewRecipeFragment newRecipeFragment;
 
-    private CoordinatorLayout layout;
+
+    private SwipeRefreshLayout layout;
 
     private RecipeDTO PostRequest;
 
@@ -41,26 +42,40 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        layout = (CoordinatorLayout) findViewById(R.id.fragment_container);
+        layout = (SwipeRefreshLayout) findViewById(R.id.fragment_container);
+
+        layout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (isOnline()) {
+                    indexTask = new IndexTask();
+                    indexTask.execute();
+                } else {
+                    layout.setRefreshing(false);
+                }
+            }
+        });
+
 
         indexFragment = new IndexFragment();
         transaction = getFragmentManager().beginTransaction();
         transaction.add(FRAGMENT_CONTAINER_ID, indexFragment);
         transaction.commit();
 
-        if (!Helper.isOnline(this)) {
-            Snackbar.make(layout, getResources().getString(R.string.offline_text),
-                    Snackbar.LENGTH_LONG).show();
-        } else {
+        if (isOnline()) {
             indexTask = new IndexTask();
             indexTask.execute();
         }
     }
 
-    @Override
-    public void IndexFabSelected() {
-        indexTask = new IndexTask();
-        indexTask.execute();
+    private boolean isOnline() {
+        if (Helper.isOnline(this)) {
+            return true;
+        } else {
+            Snackbar.make(layout, getResources().getString(R.string.offline_text),
+                    Snackbar.LENGTH_LONG).show();
+            return false;
+        }
     }
 
     @Override
@@ -97,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnF
                 result.add(recipeDTOs[i]);
             }
             indexFragment.refreshData(result);
+            layout.setRefreshing(false);
         }
     }
 
@@ -114,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnF
             ResponseEntity<RecipeDTO> respEntity = restTemplate.exchange(Constants.URL.CREATE, HttpMethod.POST, entity, RecipeDTO.class);
 
             RecipeDTO resp = respEntity.getBody();
-            return  resp;
+            return resp;
         }
 
         @Override

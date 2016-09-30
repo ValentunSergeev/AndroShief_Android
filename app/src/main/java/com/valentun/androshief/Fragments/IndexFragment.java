@@ -29,11 +29,10 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
     private RecipeAdapter adapter = new RecipeAdapter(recipies);
     private OnFabSelectedListener listener;
 
-    private FloatingActionButton refreshFab, newFab;
+    private FloatingActionButton newFab;
     private CoordinatorLayout layout;
 
     public interface OnFabSelectedListener {
-        void IndexFabSelected();
         void NewFabSelected();
     }
 
@@ -48,9 +47,6 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
         recyclerView.setAdapter(adapter);
 
         layout = (CoordinatorLayout) view.findViewById(R.id.index_container);
-
-        refreshFab = (FloatingActionButton) view.findViewById(R.id.fab);
-        refreshFab.setOnClickListener(this);
 
         newFab = (FloatingActionButton) view.findViewById(R.id.new_fab);
         newFab.setOnClickListener(this);
@@ -79,14 +75,7 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
             Snackbar.make(layout, getResources().getString(R.string.offline_text),
                     Snackbar.LENGTH_LONG).show();
         } else {
-            switch (view.getId()) {
-                case R.id.fab:
-                    listener.IndexFabSelected();
-                    break;
-                case R.id.new_fab:
-                    listener.NewFabSelected();
-                    break;
-            }
+            listener.NewFabSelected();
         }
     }
 }
