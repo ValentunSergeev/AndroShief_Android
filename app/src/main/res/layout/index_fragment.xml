@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/index_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/index_container"
-    tools:context="com.valentun.androshief.MainActivity"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:orientation="vertical"
+    tools:context="com.valentun.androshief.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycleView"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/index_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_fab"
@@ -20,7 +29,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        android:src="@mipmap/ic_plus_white_24dp"/>
-
-
+        android:src="@mipmap/ic_plus_white_24dp" />
 </android.support.design.widget.CoordinatorLayout>

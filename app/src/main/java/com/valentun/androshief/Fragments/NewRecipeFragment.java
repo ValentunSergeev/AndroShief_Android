@@ -1,6 +1,7 @@
 package com.valentun.androshief.Fragments;
 
 import android.app.Fragment;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
@@ -33,6 +34,7 @@ public class NewRecipeFragment extends Fragment implements View.OnClickListener 
         editDescription = (AppCompatEditText) view.findViewById(R.id.create_recipe_description);
 
         createButton = (AppCompatButton) view.findViewById(R.id.create_submit);
+        createButton.getBackground().setColorFilter(0xFFFF6D00, PorterDuff.Mode.MULTIPLY);
         createButton.setOnClickListener(this);
 
         mListener = (OnCreateRecipeListener) getActivity();

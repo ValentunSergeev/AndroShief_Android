@@ -12,10 +12,6 @@ public class RecipeDTO {
 
     }
 
-    public RecipeDTO(String name) {
-        this.name = name;
-    }
-
     public RecipeDTO(String name, String description) {
         this.name = name;
         this.description = description;

@@ -3,9 +3,9 @@ package com.valentun.androshief.Fragments;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,13 +27,15 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
 
     private ArrayList<RecipeDTO> recipies = new ArrayList<>();
     private RecipeAdapter adapter = new RecipeAdapter(recipies);
-    private OnFabSelectedListener listener;
+    private OnIndexFragmentActionListener listener;
 
     private FloatingActionButton newFab;
-    private CoordinatorLayout layout;
+    private SwipeRefreshLayout layout;
 
-    public interface OnFabSelectedListener {
+    public interface OnIndexFragmentActionListener {
         void NewFabSelected();
+
+        void OnRefreshed();
     }
 
 
@@ -46,12 +48,19 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
 
-        layout = (CoordinatorLayout) view.findViewById(R.id.index_container);
+        listener = (OnIndexFragmentActionListener) getActivity();
+
+        layout = (SwipeRefreshLayout) view.findViewById(R.id.index_refresh);
+
+        layout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                listener.OnRefreshed();
+            }
+        });
 
         newFab = (FloatingActionButton) view.findViewById(R.id.new_fab);
         newFab.setOnClickListener(this);
-
-        listener = (OnFabSelectedListener) getActivity();
 
         adapter.setFragmentManager(getActivity().getFragmentManager());
 
@@ -62,6 +71,10 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
         recipies.clear();
         recipies.addAll(data);
         adapter.notifyDataSetChanged();
+    }
+
+    public void stopRefreshing() {
+        layout.setRefreshing(false);
     }
 
     public void addItemToData (RecipeDTO item) {
