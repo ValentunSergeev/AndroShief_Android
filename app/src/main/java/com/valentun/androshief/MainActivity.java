@@ -1,16 +1,14 @@
 package com.valentun.androshief;
 
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.valentun.androshief.DTOs.RecipeDTO;
-import com.valentun.androshief.DTOs.User;
-import com.valentun.androshief.Fragments.AuthFragment;
 import com.valentun.androshief.Fragments.IndexFragment;
 import com.valentun.androshief.Fragments.NewRecipeFragment;
 import com.valentun.androshief.Fragments.ShowFragment;
@@ -26,20 +24,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-//----------------Adding recipe function is temporarily commented---------------
 
-public class MainActivity extends AppCompatActivity implements AuthFragment.OnAuthFragmentListener,
-        IndexFragment.OnIndexFragmentActionListener,
+public class MainActivity extends AppCompatActivity implements IndexFragment.OnIndexFragmentActionListener,
         NewRecipeFragment.OnCreateRecipeListener {
 
 
-
     private IndexFragment indexFragment;
-    private AuthFragment authFragment;
     private NewRecipeFragment newRecipeFragment;
 
-    private RegisterTask registerTask;
-    private SignInTask signInTask;
     private IndexTask indexTask;
     private CreateTask createTask;
 
@@ -47,16 +39,11 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.OnAu
 
     private FragmentTransaction transaction;
 
-    private CoordinatorLayout fragmentContiner;
+    private CoordinatorLayout fragmentContainer;
 
     private final int FRAGMENT_CONTAINER_ID = R.id.fragment_container;
 
-    private User user = new User();
-
     private RecipeDTO PostRequest;
-
-    private String pass, uid;
-
     private boolean isRefreshing = false;
 
     @Override
@@ -64,34 +51,28 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.OnAu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fragmentContiner = (CoordinatorLayout) findViewById(FRAGMENT_CONTAINER_ID);
+        Intent intent = getIntent();
+
+        String uid = intent.getStringExtra("Uid");
+        String accessToken = intent.getStringExtra("Access-Token");
+        String client = intent.getStringExtra("Client");
+
+        setAuthHeaders(uid, accessToken, client);
+
+        fragmentContainer = (CoordinatorLayout) findViewById(FRAGMENT_CONTAINER_ID);
 
 
-        authFragment = new AuthFragment();
+        indexFragment = new IndexFragment();
         transaction = getFragmentManager().beginTransaction();
-        transaction.add(FRAGMENT_CONTAINER_ID, authFragment);
+        transaction.add(FRAGMENT_CONTAINER_ID, indexFragment);
         transaction.commit();
-    }
 
-    @Override
-    public void onRegisterButtonSelected(String email, String password) {
-        if (isOnline()) {
-            uid = email;
-            pass = password;
-            registerTask = new RegisterTask();
-            registerTask.execute();
+        if(isOnline()){
+            indexTask = new IndexTask();
+            indexTask.execute();
         }
     }
 
-    @Override
-    public void onSignInButtonSelected(String email, String password) {
-        if (isOnline()) {
-            uid = email;
-            pass = password;
-            signInTask = new SignInTask();
-            signInTask.execute();
-        }
-    }
 
     @Override
     public void OnRefreshed() {
@@ -120,100 +101,23 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.OnAu
         createTask.execute();
     }
 
+    private boolean isOnline() {
+        if (Helper.isOnline(this)) {
+            return true;
+        } else {
+            Snackbar.make(fragmentContainer, getResources().getString(R.string.offline_text),
+                    Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
+
     private void setAuthHeaders(String email, String accessToken, String client) {
         headers.clear();
         headers.add("Content-Type", "application/json");
         headers.add("Uid", email);
         headers.add("Client", client);
         headers.add("Access-Token", accessToken);
-    }
-
-    private boolean isOnline() {
-        if (Helper.isOnline(this)) {
-            return true;
-        } else {
-            Snackbar.make(fragmentContiner, getResources().getString(R.string.offline_text),
-                    Snackbar.LENGTH_LONG).show();
-            return false;
-        }
-    }
-
-    private void LoggedIn() {
-        indexFragment = new IndexFragment();
-        transaction = getFragmentManager().beginTransaction();
-        transaction.replace(FRAGMENT_CONTAINER_ID, indexFragment);
-        transaction.commit();
-
-        if (isOnline()) {
-            indexTask = new IndexTask();
-            indexTask.execute();
-        }
-    }
-
-    private void setCreditHeaders(String email, String password) {
-        headers.clear();
-        headers.add("Content-Type", "application/json");
-        headers.add("email", email);
-        headers.add("password", password);
-    }
-
-    private class RegisterTask extends AsyncTask<Void, Void, Void> {
-
-        private boolean isRegistred = false;
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-
-            setCreditHeaders(uid, pass);
-
-            HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-            try {
-                restTemplate.exchange(Constants.URL.REGISTER, HttpMethod.POST, entity, User.class);
-                isRegistred = true;
-            } catch (org.springframework.web.client.HttpClientErrorException e) {
-                Snackbar.make(fragmentContiner, e.getMessage(),
-                        Snackbar.LENGTH_LONG).show();
-                Log.d("ss", e.getResponseBodyAsString());
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (isRegistred) {
-                onSignInButtonSelected(uid, pass);
-            }
-        }
-
-    }
-
-    private class SignInTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-
-            setCreditHeaders(uid, pass);
-
-            HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-            try {
-                ResponseEntity<User> respEntity = restTemplate.exchange(Constants.URL.SIGN_IN, HttpMethod.POST, entity, User.class);
-                user = respEntity.getBody();
-                MultiValueMap<String, String> respHeaders = respEntity.getHeaders();
-                setAuthHeaders(respHeaders.getFirst("Uid"), respHeaders.getFirst("Access-Token"), respHeaders.getFirst("Client"));
-                LoggedIn();
-            } catch (org.springframework.web.client.HttpClientErrorException e) {
-                Snackbar.make(fragmentContiner, e.getMessage(),
-                        Snackbar.LENGTH_LONG).show();
-            }
-            return null;
-        }
-
     }
 
     private class IndexTask extends AsyncTask<Void, Void, RecipeDTO[]> {
@@ -231,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.OnAu
                 return data;
             } catch (HttpClientErrorException e) {
                 if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                    Snackbar.make(fragmentContiner, getResources().getString(R.string.unauthorized_text),
+                    Snackbar.make(fragmentContainer, getResources().getString(R.string.unauthorized_text),
                             Snackbar.LENGTH_LONG).show();
                     return new RecipeDTO[0];
                 }
@@ -265,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements AuthFragment.OnAu
                 return resp;
             } catch (HttpClientErrorException e) {
                 if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                    Snackbar.make(fragmentContiner, getResources().getString(R.string.unauthorized_text),
+                    Snackbar.make(fragmentContainer, getResources().getString(R.string.unauthorized_text),
                             Snackbar.LENGTH_LONG).show();
                 }
             }
