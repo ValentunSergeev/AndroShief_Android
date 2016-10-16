@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnI
         transaction.add(FRAGMENT_CONTAINER_ID, indexFragment);
         transaction.commit();
 
-        if(isOnline()){
+        if (isOnline()) {
             indexTask = new IndexTask();
             indexTask.execute();
         }

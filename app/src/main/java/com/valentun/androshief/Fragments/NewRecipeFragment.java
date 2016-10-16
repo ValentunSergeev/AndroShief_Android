@@ -28,12 +28,12 @@ public class NewRecipeFragment extends Fragment implements View.OnClickListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_new_recipe, container, false);
+        view = inflater.inflate(R.layout.fragment_new, container, false);
 
-        editName = (AppCompatEditText) view.findViewById(R.id.create_recipe_name);
-        editDescription = (AppCompatEditText) view.findViewById(R.id.create_recipe_description);
+        editName = (AppCompatEditText) view.findViewById(R.id.sign_up_name);
+        editDescription = (AppCompatEditText) view.findViewById(R.id.sign_up_password);
 
-        createButton = (AppCompatButton) view.findViewById(R.id.create_submit);
+        createButton = (AppCompatButton) view.findViewById(R.id.sign_up_submit);
         createButton.getBackground().setColorFilter(0xFFFF6D00, PorterDuff.Mode.MULTIPLY);
         createButton.setOnClickListener(this);
 

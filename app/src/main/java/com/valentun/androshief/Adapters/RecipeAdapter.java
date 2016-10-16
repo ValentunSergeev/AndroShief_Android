@@ -1,4 +1,4 @@
-package com.valentun.androshief.adapter;
+package com.valentun.androshief.Adapters;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;

@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.valentun.androshief.DTOs.RecipeDTO;
 import com.valentun.androshief.Helper;
 import com.valentun.androshief.R;
-import com.valentun.androshief.adapter.RecipeAdapter;
+import com.valentun.androshief.Adapters.RecipeAdapter;
 
 import java.util.ArrayList;
 

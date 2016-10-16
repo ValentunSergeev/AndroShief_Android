@@ -1,16 +1,20 @@
 package com.valentun.androshief;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.valentun.androshief.Adapters.PageAdapter;
 import com.valentun.androshief.DTOs.User;
-import com.valentun.androshief.Fragments.AuthFragment;
+import com.valentun.androshief.Fragments.SignInFragment;
+import com.valentun.androshief.Fragments.SignUpFragment;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -20,15 +24,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-public class AuthActivity extends AppCompatActivity implements AuthFragment.OnAuthFragmentListener {
+public class AuthActivity extends AppCompatActivity implements SignUpFragment.OnSignUpFragmentListener, SignInFragment.OnSignInFragmentListener {
 
     private CoordinatorLayout fragmentContiner;
 
     private final int FRAGMENT_CONTAINER_ID = R.id.auth_container;
-
-    private AuthFragment authFragment;
-
-    private FragmentTransaction transaction;
 
     private MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
@@ -36,6 +36,9 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnAu
 
     private RegisterTask registerTask;
     private SignInTask signInTask;
+
+    private TabLayout tabLayout;
+    private Toolbar toolbar;
     private User user = new User();
 
     @Override
@@ -45,14 +48,39 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnAu
 
         fragmentContiner = (CoordinatorLayout) findViewById(FRAGMENT_CONTAINER_ID);
 
-        authFragment = new AuthFragment();
-        transaction = getFragmentManager().beginTransaction();
-        transaction.add(FRAGMENT_CONTAINER_ID, authFragment);
-        transaction.commit();
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText("Sign up"));
+        tabLayout.addTab(tabLayout.newTab().setText("Log in"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        final PageAdapter adapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
+
     @Override
-    public void onRegisterButtonSelected(String email, String password) {
+    public void onSignUpButtonSelected(String email, String password) {
         if (isOnline()) {
             uid = email;
             pass = password;
