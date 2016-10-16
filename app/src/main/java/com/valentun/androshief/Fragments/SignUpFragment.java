@@ -8,6 +8,7 @@ import android.support.v7.widget.AppCompatEditText;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.valentun.androshief.R;
 
@@ -18,10 +19,11 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
     private View view;
     private AppCompatEditText inputEmail, inputPassword;
     private AppCompatButton register;
+    private ProgressBar progressBar;
 
     public interface OnSignUpFragmentListener {
 
-        void onSignUpButtonSelected(String email, String password);
+        void onSignUpButtonSelected(String email, String password, SignUpFragment fragment);
 
     }
 
@@ -39,6 +41,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         inputEmail = (AppCompatEditText) view.findViewById(R.id.sign_up_name);
         inputPassword = (AppCompatEditText) view.findViewById(R.id.sign_up_password);
 
+        progressBar = (ProgressBar) view.findViewById(R.id.sign_up_progress_bar);
+
         register = (AppCompatButton) view.findViewById(R.id.sign_up_submit);
         register.getBackground().setColorFilter(0xFFFF6D00, PorterDuff.Mode.MULTIPLY);
         register.setOnClickListener(this);
@@ -51,6 +55,14 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         String email = inputEmail.getText().toString();
         String password = inputPassword.getText().toString();
 
-        mListener.onSignUpButtonSelected(email, password);
+        progressBar.setVisibility(View.VISIBLE);
+        register.setEnabled(false);
+
+        mListener.onSignUpButtonSelected(email, password, this);
+    }
+
+    public void stopSignUp() {
+        progressBar.setVisibility(View.GONE);
+        register.setEnabled(true);
     }
 }

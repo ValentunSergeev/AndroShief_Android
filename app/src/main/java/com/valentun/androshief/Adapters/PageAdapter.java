@@ -11,9 +11,10 @@ import com.valentun.androshief.Fragments.SignUpFragment;
 
 public class PageAdapter extends FragmentStatePagerAdapter {
     private int tabsCount;
-    private SignInFragment signInFragment;
-    private SignUpFragment signUpFragment;
 
+    private SignInFragment signInFragment;
+
+    private SignUpFragment signUpFragment;
     public PageAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
         this.tabsCount = NumOfTabs;
@@ -37,4 +38,5 @@ public class PageAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return tabsCount;
     }
+
 }

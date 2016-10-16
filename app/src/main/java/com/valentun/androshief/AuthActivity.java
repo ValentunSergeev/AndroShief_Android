@@ -9,7 +9,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.valentun.androshief.Adapters.PageAdapter;
 import com.valentun.androshief.DTOs.User;
@@ -36,6 +35,9 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
 
     private RegisterTask registerTask;
     private SignInTask signInTask;
+
+    private SignUpFragment signUpFragment;
+    private SignInFragment signInFragment;
 
     private TabLayout tabLayout;
     private Toolbar toolbar;
@@ -80,22 +82,28 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
 
 
     @Override
-    public void onSignUpButtonSelected(String email, String password) {
+    public void onSignUpButtonSelected(String email, String password, SignUpFragment fragment) {
+        signUpFragment = fragment;
         if (isOnline()) {
             uid = email;
             pass = password;
             registerTask = new RegisterTask();
             registerTask.execute();
+        } else {
+            signUpFragment.stopSignUp();
         }
     }
 
     @Override
-    public void onSignInButtonSelected(String email, String password) {
+    public void onSignInButtonSelected(String email, String password, SignInFragment fragment) {
+        signInFragment = fragment;
         if (isOnline()) {
             uid = email;
             pass = password;
             signInTask = new SignInTask();
             signInTask.execute();
+        } else {
+            signInFragment.stopLogIn();
         }
     }
 
@@ -144,7 +152,13 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             } catch (org.springframework.web.client.HttpClientErrorException e) {
                 Snackbar.make(fragmentContiner, e.getMessage(),
                         Snackbar.LENGTH_LONG).show();
-                Log.d("ss", e.getResponseBodyAsString());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        signUpFragment.stopSignUp();
+                    }
+                });
             }
             return null;
         }
@@ -153,7 +167,8 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
         @Override
         protected void onPostExecute(Void aVoid) {
             if (isRegistred) {
-                onSignInButtonSelected(uid, pass);
+                signInTask = new SignInTask();
+                signInTask.execute();
             }
         }
     }
@@ -177,6 +192,13 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
                 Snackbar.make(fragmentContiner, e.getMessage(),
                         Snackbar.LENGTH_LONG).show();
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (signUpFragment != null) signUpFragment.stopSignUp();
+                    if (signInFragment != null) signInFragment.stopLogIn();
+                }
+            });
             return null;
         }
     }
