@@ -54,14 +54,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
         String email = inputEmail.getText().toString();
         String password = inputPassword.getText().toString();
 
-        progressBar.setVisibility(View.VISIBLE);
         signIn.setEnabled(false);
 
         mListener.onSignInButtonSelected(email, password, this);
     }
 
     public void stopLogIn() {
-        progressBar.setVisibility(View.GONE);
         signIn.setEnabled(true);
     }
 

@@ -1,6 +1,8 @@
 package com.valentun.androshief;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -32,6 +34,7 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
     private MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
     private String pass, uid;
+    private SharedPreferences sPref;
 
     private RegisterTask registerTask;
     private SignInTask signInTask;
@@ -41,6 +44,8 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
 
     private TabLayout tabLayout;
     private Toolbar toolbar;
+    private ProgressDialog progress;
+
     private User user = new User();
 
     @Override
@@ -48,6 +53,18 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
+        sPref = getPreferences(MODE_PRIVATE);
+        String savedEmail = sPref.getString("EMAIL", "");
+        String savedPassword = sPref.getString("PASSWORD", "");
+
+        if (!savedEmail.equals("") && isOnline()) {
+            uid = savedEmail;
+            pass = savedPassword;
+            signInTask = new SignInTask();
+            signInTask.execute();
+            progress = ProgressDialog.show(this, "Signing in",
+                    "Searching your account in our database...", true);
+        }
         fragmentContiner = (CoordinatorLayout) findViewById(FRAGMENT_CONTAINER_ID);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -89,6 +106,8 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             pass = password;
             registerTask = new RegisterTask();
             registerTask.execute();
+            progress = ProgressDialog.show(this, "Signing up",
+                    "We are registering you. Please wait a bit...", true);
         } else {
             signUpFragment.stopSignUp();
         }
@@ -102,6 +121,8 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             pass = password;
             signInTask = new SignInTask();
             signInTask.execute();
+            progress = ProgressDialog.show(this, "Signing in",
+                    "Searching your account in our database...", true);
         } else {
             signInFragment.stopLogIn();
         }
@@ -118,6 +139,14 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
     }
 
     private void LoggedIn(String uid, String accessToken, String client) {
+        progress.dismiss();
+
+        sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString("EMAIL", uid);
+        ed.putString("PASSWORD", pass);
+        ed.apply();
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("Uid", uid);
         intent.putExtra("Access-Token", accessToken);
@@ -156,6 +185,7 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progress.dismiss();
                         signUpFragment.stopSignUp();
                     }
                 });
@@ -195,6 +225,7 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    progress.dismiss();
                     if (signUpFragment != null) signUpFragment.stopSignUp();
                     if (signInFragment != null) signInFragment.stopLogIn();
                 }

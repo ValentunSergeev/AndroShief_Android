@@ -2,8 +2,14 @@ package com.valentun.androshief.Adapters;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +28,13 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     private FragmentManager fragmentManager;
 
+    private DisplayMetrics dm;
+
     private ShowFragment showFragment;
-    private static final int VIEW_TYPE_EMPTY_LIST_PLACEHOLDER = 0;
-    private static final int VIEW_TYPE_OBJECT_VIEW = 1;
-    public RecipeAdapter(ArrayList<RecipeDTO> data) {
+
+    public RecipeAdapter(ArrayList<RecipeDTO> data, DisplayMetrics dm) {
         this.data = data;
+        this.dm = dm;
     }
 
     @Override
@@ -36,20 +44,24 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     @Override
-    public int getItemViewType(int position) {
-        if (data.isEmpty()) {
-            return VIEW_TYPE_EMPTY_LIST_PLACEHOLDER;
-        } else {
-            return VIEW_TYPE_OBJECT_VIEW;
-        }
-    }
-
-    @Override
     public void onBindViewHolder(final RecipeViewHolder holder, int position) {
         RecipeDTO item = data.get(position);
         holder.name.setText(item.getName());
         holder.description.setText(item.getDescription());
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
+
+        String Base64Image = item.getMainPhoto().substring(23);
+
+        byte[] decodedBytes = Base64.decode(Base64Image, 0);
+        Bitmap image = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+
+        double coefficient = (dm.widthPixels - 24 * dm.density)/image.getWidth();
+
+        Bitmap resized = Bitmap.createScaledBitmap(image, (int) (image.getWidth() * coefficient) + 1,
+                                                          (int) (image.getHeight() * coefficient) + 1, true);
+        holder.imageView.setImageBitmap(resized);
+
+
+        holder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 RecipeDTO item = data.get(holder.getAdapterPosition());
@@ -71,18 +83,26 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         this.fragmentManager = fragmentManager;
     }
 
+    public void setDm(DisplayMetrics dm) {
+        this.dm = dm;
+    }
+
 
     public static class RecipeViewHolder extends RecyclerView.ViewHolder {
 
         CardView cardView;
         TextView name;
         TextView description;
+        FloatingActionButton fab;
+        AppCompatImageView imageView;
 
         public RecipeViewHolder(final View itemView) {
             super(itemView);
             cardView = (CardView) itemView.findViewById(R.id.cardView);
             name = (TextView) itemView.findViewById(R.id.name);
+            fab = (FloatingActionButton) itemView.findViewById(R.id.item_fab);
             description = (TextView) itemView.findViewById(R.id.description);
+            imageView = (AppCompatImageView) itemView.findViewById(R.id.item_main_photo);
         }
     }
 }

@@ -2,20 +2,24 @@ package com.valentun.androshief.Fragments;
 
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
+import com.valentun.androshief.Adapters.RecipeAdapter;
 import com.valentun.androshief.DTOs.RecipeDTO;
 import com.valentun.androshief.Helper;
 import com.valentun.androshief.R;
-import com.valentun.androshief.Adapters.RecipeAdapter;
 
 import java.util.ArrayList;
 
@@ -26,7 +30,8 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
     private RecyclerView recyclerView;
 
     private ArrayList<RecipeDTO> recipies = new ArrayList<>();
-    private RecipeAdapter adapter = new RecipeAdapter(recipies);
+    private DisplayMetrics dm = new DisplayMetrics();
+    private RecipeAdapter adapter = new RecipeAdapter(recipies, dm);
     private OnIndexFragmentActionListener listener;
 
     private FloatingActionButton newFab;
@@ -41,6 +46,14 @@ public class IndexFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+
+        DisplayMetrics dm = new DisplayMetrics();
+        display.getMetrics(dm);
+        adapter.setDm(dm);
 
         view = inflater.inflate(R.layout.index_fragment, container, false);
 

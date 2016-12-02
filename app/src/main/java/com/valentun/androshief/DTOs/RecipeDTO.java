@@ -1,12 +1,14 @@
 package com.valentun.androshief.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RecipeDTO {
     private String id;
     private String name;
     private String description;
+    private String mainPhoto;
 
     public RecipeDTO() {
 
@@ -39,5 +41,13 @@ public class RecipeDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    @JsonProperty("main_photo")
+    public String getMainPhoto() {
+        return mainPhoto;
+    }
+
+    public void setMainPhoto(String mainPhoto) {
+        this.mainPhoto = mainPhoto;
     }
 }

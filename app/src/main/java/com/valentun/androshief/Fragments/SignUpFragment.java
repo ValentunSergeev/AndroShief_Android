@@ -55,14 +55,14 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         String email = inputEmail.getText().toString();
         String password = inputPassword.getText().toString();
 
-        progressBar.setVisibility(View.VISIBLE);
+//        progressBar.setVisibility(View.VISIBLE);
         register.setEnabled(false);
 
         mListener.onSignUpButtonSelected(email, password, this);
     }
 
     public void stopSignUp() {
-        progressBar.setVisibility(View.GONE);
+//        progressBar.setVisibility(View.GONE);
         register.setEnabled(true);
     }
 }
