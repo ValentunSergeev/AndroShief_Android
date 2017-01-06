@@ -2,11 +2,20 @@ package com.valentun.androshief;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.valentun.androshief.DTOs.RecipeDTO;
 import com.valentun.androshief.Fragments.IndexFragment;
@@ -26,7 +35,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements IndexFragment.OnIndexFragmentActionListener,
-        NewRecipeFragment.OnCreateRecipeListener {
+        NewRecipeFragment.OnCreateRecipeListener, NavigationView.OnNavigationItemSelectedListener {
 
 
     private IndexFragment indexFragment;
@@ -46,21 +55,21 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnI
     private RecipeDTO PostRequest;
     private boolean isRefreshing = false;
 
+    private Intent intent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = getIntent();
+        initializeUserAttributes();
 
-        String uid = intent.getStringExtra("Uid");
-        String accessToken = intent.getStringExtra("Access-Token");
-        String client = intent.getStringExtra("Client");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        setAuthHeaders(uid, accessToken, client);
+        initializeNavDriver(toolbar);
 
         fragmentContainer = (CoordinatorLayout) findViewById(FRAGMENT_CONTAINER_ID);
-
 
         indexFragment = new IndexFragment();
         transaction = getFragmentManager().beginTransaction();
@@ -73,6 +82,48 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnI
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                break;
+            case R.id.nav_explore:
+                break;
+            case R.id.nav_my_recipes:
+                break;
+            case R.id.nav_settings:
+                break;
+            case R.id.nav_log_out:
+                SharedPreferences sPref = getSharedPreferences(Constants.APP_PREFERENCES, MODE_PRIVATE);
+                SharedPreferences.Editor ed = sPref.edit();
+                ed.clear();
+                ed.apply();
+
+                Intent intent = new Intent(this, AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                break;
+            case R.id.nav_share:
+                break;
+            case R.id.nav_send:
+                break;
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
 
     @Override
     public void OnRefreshed() {
@@ -101,6 +152,33 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnI
         createTask.execute();
     }
 
+    private void initializeNavDriver(Toolbar toolbar) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView email = (TextView) headerLayout.findViewById(R.id.nav_head_email);
+        email.setText(intent.getStringExtra("Uid"));
+
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initializeUserAttributes() {
+        intent = getIntent();
+
+        String uid = intent.getStringExtra("Uid");
+        String accessToken = intent.getStringExtra("Access-Token");
+        String client = intent.getStringExtra("Client");
+
+        setAuthHeaders(uid, accessToken, client);
+    }
+
+
     private boolean isOnline() {
         if (Helper.isOnline(this)) {
             return true;
@@ -110,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnI
             return false;
         }
     }
-
 
     private void setAuthHeaders(String email, String accessToken, String client) {
         headers.clear();

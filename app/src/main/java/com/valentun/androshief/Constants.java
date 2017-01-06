@@ -18,4 +18,6 @@ public class Constants {
         public static final String INDEX = HOST + "/recipies.json";
         public static final String CREATE = HOST + "/recipies.json";
     }
+
+    public static final String APP_PREFERENCES = "User";
 }

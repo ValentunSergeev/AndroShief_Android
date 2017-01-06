@@ -53,7 +53,7 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        sPref = getPreferences(MODE_PRIVATE);
+        sPref = getSharedPreferences(Constants.APP_PREFERENCES, MODE_PRIVATE);
         String savedEmail = sPref.getString("EMAIL", "");
         String savedPassword = sPref.getString("PASSWORD", "");
 
@@ -108,8 +108,6 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             registerTask.execute();
             progress = ProgressDialog.show(this, "Signing up",
                     "We are registering you. Please wait a bit...", true);
-        } else {
-            signUpFragment.stopSignUp();
         }
     }
 
@@ -123,8 +121,6 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             signInTask.execute();
             progress = ProgressDialog.show(this, "Signing in",
                     "Searching your account in our database...", true);
-        } else {
-            signInFragment.stopLogIn();
         }
     }
 
@@ -186,7 +182,6 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
                     @Override
                     public void run() {
                         progress.dismiss();
-                        signUpFragment.stopSignUp();
                     }
                 });
             }
@@ -226,8 +221,6 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
                 @Override
                 public void run() {
                     progress.dismiss();
-                    if (signUpFragment != null) signUpFragment.stopSignUp();
-                    if (signInFragment != null) signInFragment.stopLogIn();
                 }
             });
             return null;
