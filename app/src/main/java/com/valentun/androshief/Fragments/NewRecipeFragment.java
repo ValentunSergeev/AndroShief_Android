@@ -30,7 +30,7 @@ public class NewRecipeFragment extends Fragment implements View.OnClickListener 
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_new, container, false);
 
-        editName = (AppCompatEditText) view.findViewById(R.id.sign_up_name);
+        editName = (AppCompatEditText) view.findViewById(R.id.sign_up_email);
         editDescription = (AppCompatEditText) view.findViewById(R.id.sign_up_password);
 
         createButton = (AppCompatButton) view.findViewById(R.id.sign_up_submit);

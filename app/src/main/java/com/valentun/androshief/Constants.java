@@ -20,4 +20,6 @@ public class Constants {
     }
 
     public static final String APP_PREFERENCES = "User";
+
+    public static final int GALLERY_REQUEST = 1;
 }

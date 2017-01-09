@@ -11,8 +11,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.valentun.androshief.Adapters.PageAdapter;
+import com.valentun.androshief.DTOs.RegisterUser;
 import com.valentun.androshief.DTOs.User;
 import com.valentun.androshief.Fragments.SignInFragment;
 import com.valentun.androshief.Fragments.SignUpFragment;
@@ -31,9 +35,7 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
 
     private final int FRAGMENT_CONTAINER_ID = R.id.auth_container;
 
-    private MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-
-    private String pass, uid;
+    private String pass, uid, name, image;
     private SharedPreferences sPref;
 
     private RegisterTask registerTask;
@@ -46,7 +48,6 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
     private Toolbar toolbar;
     private ProgressDialog progress;
 
-    private User user = new User();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +100,13 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
 
 
     @Override
-    public void onSignUpButtonSelected(String email, String password, SignUpFragment fragment) {
+    public void onSignUpButtonSelected(String email, String password, String name, String image, SignUpFragment fragment) {
         signUpFragment = fragment;
         if (isOnline()) {
             uid = email;
             pass = password;
+            this.image = image;
+            this.name = name;
             registerTask = new RegisterTask();
             registerTask.execute();
             progress = ProgressDialog.show(this, "Signing up",
@@ -134,12 +137,14 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
         }
     }
 
-    private void LoggedIn(String uid, String accessToken, String client) {
+    private void LoggedIn(String accessToken, String client, User user) {
         progress.dismiss();
 
-        sPref = getPreferences(MODE_PRIVATE);
+        sPref = getSharedPreferences(Constants.APP_PREFERENCES, MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("EMAIL", uid);
+        ed.putString("EMAIL", user.getData().getUid());
+        ed.putString("NAME", user.getData().getName());
+        ed.putString("IMAGE", user.getData().getImage());
         ed.putString("PASSWORD", pass);
         ed.apply();
 
@@ -151,13 +156,6 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
         startActivity(intent);
     }
 
-    private void setCreditHeaders(String email, String password) {
-        headers.clear();
-        headers.add("Content-Type", "application/json");
-        headers.add("email", email);
-        headers.add("password", password);
-    }
-
     private class RegisterTask extends AsyncTask<Void, Void, Void> {
 
         private boolean isRegistred = false;
@@ -167,9 +165,23 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-            setCreditHeaders(uid, pass);
 
-            HttpEntity<String> entity = new HttpEntity<>("", headers);
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Content-Type", "application/json");
+
+            RegisterUser registerUser = new RegisterUser(name, uid, image, pass);
+            String body = "";
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                body = mapper.writeValueAsString(registerUser);
+                Log.d("Auth", body);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+
+            HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
             try {
                 restTemplate.exchange(Constants.URL.REGISTER, HttpMethod.POST, entity, User.class);
@@ -204,15 +216,18 @@ public class AuthActivity extends AppCompatActivity implements SignUpFragment.On
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-            setCreditHeaders(uid, pass);
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Content-Type", "application/json");
+            headers.add("email", uid);
+            headers.add("password", pass);
 
             HttpEntity<String> entity = new HttpEntity<>("", headers);
 
             try {
                 ResponseEntity<User> respEntity = restTemplate.exchange(Constants.URL.SIGN_IN, HttpMethod.POST, entity, User.class);
-                user = respEntity.getBody();
+                User user = respEntity.getBody();
                 MultiValueMap<String, String> respHeaders = respEntity.getHeaders();
-                LoggedIn(respHeaders.getFirst("Uid"), respHeaders.getFirst("Access-Token"), respHeaders.getFirst("Client"));
+                LoggedIn(respHeaders.getFirst("Access-Token"), respHeaders.getFirst("Client"), user);
             } catch (org.springframework.web.client.HttpClientErrorException e) {
                 Snackbar.make(fragmentContiner, e.getMessage(),
                         Snackbar.LENGTH_LONG).show();

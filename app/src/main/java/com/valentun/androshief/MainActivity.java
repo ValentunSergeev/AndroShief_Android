@@ -3,6 +3,7 @@ package com.valentun.androshief;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -12,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +35,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+
+import static com.valentun.androshief.Helper.RoundBitmap;
+import static com.valentun.androshief.Helper.decodeBitMap;
 
 public class MainActivity extends AppCompatActivity implements IndexFragment.OnIndexFragmentActionListener,
         NewRecipeFragment.OnCreateRecipeListener, NavigationView.OnNavigationItemSelectedListener {
@@ -163,7 +168,23 @@ public class MainActivity extends AppCompatActivity implements IndexFragment.OnI
 
         View headerLayout = navigationView.getHeaderView(0);
         TextView email = (TextView) headerLayout.findViewById(R.id.nav_head_email);
-        email.setText(intent.getStringExtra("Uid"));
+        TextView name = (TextView) headerLayout.findViewById(R.id.nav_head_name);
+        AppCompatImageView avatar = (AppCompatImageView) headerLayout.findViewById(R.id.nav_head_image);
+
+
+        SharedPreferences sPref = getSharedPreferences(Constants.APP_PREFERENCES, MODE_PRIVATE);
+        String savedEmail = sPref.getString("EMAIL", "");
+        String savedName = sPref.getString("NAME", "");
+        String savedImage = sPref.getString("IMAGE", "");
+
+        if (savedName.equals("")) savedName = "AndroShief";
+        if (!savedImage.equals("")) {
+            Bitmap bmp = decodeBitMap(savedImage);
+            avatar.setImageDrawable(RoundBitmap(getResources(), bmp));
+        }
+
+        email.setText(savedEmail);
+        name.setText(savedName);
 
         navigationView.setNavigationItemSelectedListener(this);
     }
